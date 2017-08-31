@@ -156,11 +156,20 @@ def train():
       k = 1.0
     return {x: xs, y_: ys, keep_prob: k}
 
+  from tensorflow.python.client import timeline  #TODO NEW
+
   for i in range(FLAGS.max_steps):
     if i % 10 == 0:  # Record summaries and test-set accuracy
-      summary, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
+      run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+      run_metadata = tf.RunMetadata()
+      summary, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False),
+                                options=run_options,
+                                run_metadata=run_metadata)
       test_writer.add_summary(summary, i)
       print('Accuracy at step %s: %s' % (i, acc))
+      trace = timeline.Timeline(step_stats=run_metadata.step_stats)
+      trace_file = open('mnist121Timeline%d' % (i) , 'w')
+      trace_file.write(trace.generate_chrome_trace_format())
     else:  # Record train set summaries, and train
       if i % 100 == 99:  # Record execution stats
         run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
