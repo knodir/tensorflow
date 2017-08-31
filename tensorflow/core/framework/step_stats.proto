@@ -55,6 +55,7 @@ message NodeExecStats {
   uint32 thread_id = 10;
   repeated AllocationDescription referenced_tensor = 11;
   MemoryStats memory_stats = 12;
+  int64 sendbuf_size = 13;
 };
 
 message DeviceStepStats {

@@ -100,7 +100,7 @@ bool SetTimelineLabel(const Node* node, NodeExecStats* node_stats) {
     string recv_device;
     TF_CHECK_OK(GetNodeAttr(def, "recv_device", &recv_device));
     text = strings::StrCat(memory, def.name(), " = ", def.op(), "(",
-                           tensor_name, " @", recv_device);
+                           tensor_name, ")", " @", recv_device);
     is_transfer_node = true;
   } else if (IsRecv(node)) {
     string tensor_name;
@@ -108,7 +108,7 @@ bool SetTimelineLabel(const Node* node, NodeExecStats* node_stats) {
     string send_device;
     TF_CHECK_OK(GetNodeAttr(def, "send_device", &send_device));
     text = strings::StrCat(memory, def.name(), " = ", def.op(), "(",
-                           tensor_name, " @", send_device);
+                           tensor_name, ")", " @", send_device);
     is_transfer_node = true;
   } else {
     text = strings::StrCat(
@@ -1650,6 +1650,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
         if (stats) nodestats::SetOpStart(stats);
+        if (stats && IsSend(node) ) stats->set_sendbuf_size( ctx.input(0).TotalBytes() );
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
         if (stats) nodestats::SetOpEnd(stats);
 
@@ -2004,7 +2005,8 @@ bool ExecutorState::NodeDone(const Status& s, const Node* node,
       // Only record non-transfer nodes.
       stats_collector_->Save(impl_->params_.device->name(), stats);
     } else {
-      delete stats;
+      stats_collector_->Save(impl_->params_.device->name(), stats); //TODO: test
+      //delete stats;
     }
   }
 

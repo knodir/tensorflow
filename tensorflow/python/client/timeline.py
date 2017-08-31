@@ -388,6 +388,7 @@ class Timeline(object):
     # Expects labels of the form: name = op(arg, arg, ...).
     match = re.match(r'(.*) = (.*)\((.*)\)', label)
     if match is None:
+      print( label )
       return 'unknown', 'unknown', []
     nn, op, inputs = match.groups()
     if not inputs:
