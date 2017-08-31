@@ -61,6 +61,10 @@ void SendOp::Compute(OpKernelContext* ctx) {
   Rendezvous::ParsedKey parsed;
   GetRendezvousKey(key_prefix_, ctx->frame_iter(), &parsed.buf_);
   VLOG(2) << "Send " << parsed.buf_;
+  /*if (!BaseRemoteRendezvous::IsSameWorker(parsed.src, parsed.dst)) {
+  	LOG(INFO) << "Rendezvous sent a tensor of " << ctx->input(0).TotalBytes() << "bytes.";
+  	LOG(INFO) << "Tensor is: " << ctx->input(0).SummarizeValue(200);
+  }*/
 
   OP_REQUIRES_OK(ctx, Rendezvous::ParseKey(parsed.buf_, &parsed));
 

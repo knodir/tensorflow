@@ -186,6 +186,14 @@ Status BaseRemoteRendezvous::Send(const Rendezvous::ParsedKey& parsed,
                                   const Rendezvous::Args& args,
                                   const Tensor& val, const bool is_dead) {
   VLOG(1) << "BaseRemoteRendezvous Send " << this << " " << parsed.FullKey();
+  
+  if (!IsSameWorker(parsed.src, parsed.dst)) {
+    LOG(INFO) << "DIFF:BaseRemoteRendezvous sent a tensor of " << val.TotalBytes() << "bytes.";
+    LOG(INFO) << "DIFF:Tensor is: " << parsed.FullKey(); //val.SummarizeValue(200);
+  } else {
+    LOG(INFO) << "SAME:BaseRemoteRendezvous sent a tensor of " << val.TotalBytes() << "bytes.";
+    LOG(INFO) << "SAME:Tensor is: " << parsed.FullKey(); //val.SummarizeValue(200);
+  }
   {
     mutex_lock l(mu_);
     if (!status_.ok()) return status_;
