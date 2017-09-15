@@ -119,6 +119,8 @@ bool SetTimelineLabel(const Node* node, NodeExecStats* node_stats) {
         ")");
   }
   node_stats->set_timeline_label(text);
+
+  //LOG(INFO) << "Label: " << text << "Is Send? " << IsSend(node) << " Bytes sent: " << node_stats->sendbuf_size();
   return is_transfer_node;
 }
 
@@ -1650,8 +1652,20 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
         if (stats) nodestats::SetOpStart(stats);
-        if (stats && IsSend(node) ) stats->set_sendbuf_size( ctx.input(0).TotalBytes() );
-        device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
+        if (stats && IsSend(node) ) {
+		//Collect Send/Recv statistics into JSON	
+		const NodeDef& def = node->def();
+		string send_device;
+		TF_CHECK_OK(GetNodeAttr(def, "send_device", &send_device));
+		string recv_device;
+		TF_CHECK_OK(GetNodeAttr(def, "recv_device", &recv_device));
+		stats->set_send_device( send_device );
+		stats->set_recv_device( recv_device );
+		stats->set_sendbuf_size( ctx.input(0).TotalBytes() );
+		//if (ctx.input(0).TotalBytes() == 0)
+		LOG(INFO) << "Label: " << stats->timeline_label() << ctx.input(0).TotalBytes() << " bytes sent from " << send_device << " to " << recv_device;
+        }
+	device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
         if (stats) nodestats::SetOpEnd(stats);
 
         s = ProcessOutputs(item, &ctx, &outputs, stats);

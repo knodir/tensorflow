@@ -134,6 +134,26 @@ class _ChromeTraceFormatter(object):
     event['args'] = args
     self._events.append(event)
 
+  def emit_region_send(self, timestamp, duration, pid, tid, category, name, args, size, send, recv):
+    """Adds a region event to the trace.
+
+    Args:
+      timestamp:  The start timestamp of this region as a long integer.
+      duration:  The duration of this region as a long integer.
+      pid:  Identifier of the process generating this event as an integer.
+      tid:  Identifier of the thread generating this event as an integer.
+      category: The event category as a string.
+      name:  The event name as a string.
+      args:  A JSON-compatible dictionary of event arguments.
+    """
+    event = self._create_event('X', category, name, pid, tid, timestamp)
+    event['dur'] = duration
+    event['args'] = args
+    event['sendsize'] = size
+    event['send_device'] = send
+    event['recv_device'] = recv
+    self._events.append(event)
+
   def emit_obj_create(self, category, name, timestamp, pid, tid, object_id):
     """Adds an object creation event to the trace.
 
@@ -439,7 +459,14 @@ class Timeline(object):
     args = {'name': node_name, 'op': op}
     for i, iname in enumerate(inputs):
       args['input%d' % i] = iname
-    self._chrome_trace.emit_region(start, duration, pid, tid, 'Op', op, args)
+    #self._chrome_trace.emit_region(start, duration, pid, tid, 'Op', op, args)
+    if op == "_Send":
+        sendbuf_size = nodestats.sendbuf_size
+        send_device = nodestats.send_device
+        recv_device = nodestats.recv_device
+        self._chrome_trace.emit_region_send(start, duration, pid, tid, 'Op', op, args, sendbuf_size, send_device, recv_device)
+    else:
+        self._chrome_trace.emit_region(start, duration, pid, tid, 'Op', op, args)
 
   def _emit_tensor_snapshot(self, tensor, timestamp, pid, tid, value):
     """Generate Chrome Trace snapshot event for a computed Tensor.
