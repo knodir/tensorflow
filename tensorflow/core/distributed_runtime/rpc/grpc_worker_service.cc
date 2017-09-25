@@ -313,7 +313,7 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
   TRACEPRINTF("RecvTensor: %lld %s", step_id, key.c_str());
   Rendezvous::ParsedKey parsed;
   Status s = Rendezvous::ParseKey(key, &parsed);
-  LOG(INFO) << "RecvTensor desired: " << parsed.FullKey();
+  //LOG(INFO) << "RecvTensor desired: " << parsed.FullKey();
   Device* src_dev = nullptr;
   if (s.ok()) {
     s = PrepareRecvTensor(parsed, &src_dev);
@@ -336,7 +336,7 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
                                       const Tensor& val, const bool is_dead) {
         opts->ClearCancelCallback();
         if (status.ok()) {
-	  LOG(INFO) << "RecvCallback got " << val.TotalBytes() <<"bytes.";
+	  //LOG(INFO) << "RecvCallback got " << val.TotalBytes() <<"bytes.";
 	  //LOG(INFO) << "RecvTensor is: " << val.SummarizeValue(200);
           // DMA can only be used for Tensors that do not fall into
           // the following three odd edge cases: 1) a zero-size

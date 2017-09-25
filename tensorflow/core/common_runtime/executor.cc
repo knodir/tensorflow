@@ -1662,8 +1662,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 		stats->set_send_device( send_device );
 		stats->set_recv_device( recv_device );
 		stats->set_sendbuf_size( ctx.input(0).TotalBytes() );
-		//if (ctx.input(0).TotalBytes() == 0)
-		LOG(INFO) << "Label: " << stats->timeline_label() << ctx.input(0).TotalBytes() << " bytes sent from " << send_device << " to " << recv_device;
+		//UNCOMMENT this line of code if Send/Recv logging desired:
+		//LOG(INFO) << "Label: " << stats->timeline_label() << ctx.input(0).TotalBytes() << " bytes sent from " << send_device << " to " << recv_device;
         }
 	device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
         if (stats) nodestats::SetOpEnd(stats);
