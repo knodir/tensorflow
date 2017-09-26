@@ -42,10 +42,17 @@ class TimeLiner:
             json.dump(self._timeline_dict, f, indent=4)
 
 # cluster specification
-parameter_servers = ["engelbart.cs.ubc.ca:2222"]
+"""parameter_servers = ["engelbart.cs.ubc.ca:2222"]
 workers = [	"engelbart.cs.ubc.ca:2223", 
 			"micali.cs.ubc.ca:2223",
-			"micali.cs.ubc.ca:2222"]
+			"micali.cs.ubc.ca:2222"]"""
+#TODO: import spec from JSON
+clusterConfig = dict()
+with open("testConfig.json") as config:
+    clusterConfig = json.load(config)
+
+parameter_servers = list( clusterConfig["parameter_servers"].values() )
+workers = list( clusterConfig["workers"].values() )
 cluster = tf.train.ClusterSpec({"ps":parameter_servers, "worker":workers})
 
 # input flags

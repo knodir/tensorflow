@@ -1,0 +1,10 @@
+{
+    "parameter_servers": {
+        "ps0": "engelbart.cs.ubc.ca:2222"
+    }, 
+    "workers": {
+        "worker1": "micali.cs.ubc.ca:2223", 
+        "worker0": "engelbart.cs.ubc.ca:2223", 
+        "worker2": "micali.cs.ubc.ca:2222"
+    }
+}
